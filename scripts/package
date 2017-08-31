@@ -1,0 +1,20 @@
+#!/bin/bash
+set -e
+
+ARCH=${ARCH:?"ARCH not set"}
+SUFFIX=""
+[ "${ARCH}" != "amd64" ] && SUFFIX="_${ARCH}"
+
+cd $(dirname $0)/../package
+
+REPO=${REPO:-niusmallnan}
+
+for i in */Dockerfile; do
+    BASE=$(dirname $i)
+    VERSION=$(cat ${BASE}/version)
+    TAG=${TAG:-${VERSION}${SUFFIX}}
+    IMAGE=${REPO}/${BASE}:${TAG}
+    docker build -f $i -t ${IMAGE} .
+    echo ${IMAGE} > ../dist/images
+    echo Built ${IMAGE}
+done
